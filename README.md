@@ -1,6 +1,8 @@
 # haskell-checkers
 Final Project for CMSC498V
 
+![Alt text](https://cdn.pixabay.com/photo/2012/04/12/12/54/checker-29911_960_720.png)
+
 Simon Schlegel
 Spencer Chen
 
