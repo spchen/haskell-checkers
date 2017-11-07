@@ -22,16 +22,16 @@ b!!ij = M.fromMaybe EmptyTile (lookup ij b)
 
 whatSquare :: Int -> Int -> Tile
 whatSquare x y = if (x `mod` 2 == y `mod` 2) then
-                        EmptyBTile
-                 else
                         EmptyRTile
+                 else
+                        EmptyBTile
 
 emptyBoard :: Board
 emptyBoard = [((x,y), (whatSquare x y)) | x <- [1..8], y <- [1..8]]
 
 startingBoard :: Board
 startingBoard = [((x,y), (whatSquare x y)) | x <- [4..5], y <- [1..8]] ++ [((x,y), R) | x<-[1..3], y<-[1..8], (whatSquare x y) == EmptyRTile ] ++ 
-    [((x,y), B) | x<-[6..8], y<-[1..8], (whatSquare x y) == EmptyBTile ] 
+    [((x,y), B) | x<-[6..8], y<-[1..8], (whatSquare x y) == EmptyRTile ] 
 
 
 ---Needs to check if there is a jump (player must do the jump) ----
