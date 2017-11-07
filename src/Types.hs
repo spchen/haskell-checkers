@@ -27,6 +27,13 @@ emptyBoard = [((x,y), EmptyTile) | x <- [1..8], y <- [1..8]]
 ---Needs to check if there is a jump (player must do the jump) ----
 validMoves :: Board -> [Move]
 
+
+putMaybe :: Board -> Tile -> Move -> Maybe Board
+putMaybe b t xy = case b!!xy of
+-- TODO: place king tile if move is on opponents edge
+               EmptyTile -> Just $ map (\(ij,tij) -> if ij == xy then (ij,t) else (ij,tij)) b 
+               _         -> Nothing
+
 -------------------------------------------------------------------------------
 --- Player --------------------------------------------------------------------
 -------------------------------------------------------------------------------
