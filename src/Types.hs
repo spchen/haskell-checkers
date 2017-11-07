@@ -10,7 +10,7 @@ import qualified Data.Maybe as M
 -------------------------------------------------------------------------------
 
 --R = Red--- B = Black --- R = Red King ---- BK = Black King
-data Tile = EmptyTile | R | B | RK | BK
+data Tile = EmptyTile | EmptyRTile | EmptyBTile | R | B | RK | BK
   deriving (Eq)
 
 type Move   = (Int,Int)
@@ -20,13 +20,23 @@ type Board  = [(Move, Tile)]
 (!!) :: Board -> Move -> Tile
 b!!ij = M.fromMaybe EmptyTile (lookup ij b) 
 
+whatSquare :: Int -> Int -> Tile
+whatSquare x y = if (x `mod` 2 == y `mod` 2) then
+                        EmptyBTile
+                 else
+                        EmptyRTile
+
 emptyBoard :: Board
-emptyBoard = [((x,y), EmptyTile) | x <- [1..8], y <- [1..8]]
+emptyBoard = [((x,y), (whatSquare x y)) | x <- [1..8], y <- [1..8]]
+
+startingBoard :: Board
+startingBoard = [((x,y), (whatSquare x y)) | x <- [4..5], y <- [1..8]] ++ [((x,y), R) | x<-[1..3], y<-[1..8], (whatSquare x y) == EmptyRTile ] ++ 
+    [((x,y), B) | x<-[6..8], y<-[1..8], (whatSquare x y) == EmptyBTile ] 
 
 
 ---Needs to check if there is a jump (player must do the jump) ----
 validMoves :: Board -> [Move]
-
+validMoves todo = []
 
 putMaybe :: Board -> Tile -> Move -> Maybe Board
 putMaybe b t xy = case b!!xy of
@@ -91,14 +101,20 @@ instance Show PlayerInfo where
 
 
 instance Show Tile where
-  show EmptyTile = "     "
+  show EmptyTile = "     " ---For temporary compiling purposes
+  show EmptyRTile = "  .  "
+  show EmptyBTile = "     "
   show R         = "  R  "
   show B         = "  B  "
   show RK        = " RK "
   show BK        = " BK "
 
 showBoard :: Board -> String
---- TODO ----
+showBoard b = let blist = boardAsList b
+              in  unlines [Data.List.intercalate "|" row | row <- blist]
+              where
+                boardAsList b = [[show (b!!(x,y)) | y <- [1..8]] | x <- [1..8]]
 
 showTileNumbers :: String
----- TODO ----
+showTileNumbers  = (unlines
+                   [Data.List.intercalate "|" ["(" ++ show x ++ "," ++ show y ++ ")" | y <- [1..8]] | x <- [1..8]])
