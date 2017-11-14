@@ -4,11 +4,11 @@ import Types
 import Checks 
 import Misc 
 
-import Player.Human    (playerHuman   )
+import Players.Human    (playerHuman   )
 
 player1, player2 :: Player
-player1 = playerHuman  
-player2 = playerHuman
+player1 = playerHuman "Player1"
+player2 = playerHuman "Player2"
 
 main :: IO ()
 main = do
@@ -30,7 +30,8 @@ playRound p1 p2 score i = do
    putStrLn ("Score:: " ++ showScore score)
    putStrLn ("Round " ++ show i ++ "!")
    putStrLn ((if (i `mod` 2 == 0) then show p2 else show p1)  ++ " plays first")
-   result <- if (i `mod` 2 == 0) then play p2 p1 emptyBoard else play p1 p2 emptyBoard
+   putStrLn (showBoard startingBoard)
+   result <- if (i `mod` 2 == 0) then play p2 p1 startingBoard else play p1 p2 startingBoard
    case result of 
       Just p  -> putStrLn (show p ++ " wins!\n\n") >> return (incr p score)
       Nothing -> putStrLn "Its a draw!\n\n" >> return score 
@@ -44,6 +45,4 @@ play pi1@(PI p1 t1 _) pi2 board = do
     Just b  -> do putStrLn $ showBoard b
                   if tileWins b t1
                     then return (Just pi1) 
-                    else if checkFull b 
-                    then return Nothing 
                     else play pi2 pi1 b 

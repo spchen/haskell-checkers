@@ -1,4 +1,4 @@
-module Player.Human (playerHuman) where 
+module Players.Human (playerHuman) where 
 
 import Types 
 import Misc 

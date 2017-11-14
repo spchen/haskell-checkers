@@ -21,7 +21,7 @@ tileWins b t =
    noTileOnBoard b (flipTile t) || (validMoves b (flipTile t)) == []
 
 noTileOnBoard:: Board -> Tile -> Bool
-noTileOnBoard b t = not (any (\row-> any (\col -> b!!(row,col) == t)))
+noTileOnBoard b t = not (any (\row-> any (\col -> b!!(row,col) == t) [1..8]) [1..8])
 
 scoreBoard :: Tile -> Board -> Maybe Int 
 scoreBoard tile board 
@@ -30,7 +30,7 @@ scoreBoard tile board
   | tileWins board (flipTile tile)   
   = Just (-1) 
 -- neither player has any valid moves = draw
-  | (validMoves b tile) == [] && (validMoves b (flipTile tile)) == []           
+  | (validMoves board tile) == [] && (validMoves board (flipTile tile)) == []           
   = Just 0
   | otherwise
   = Nothing 

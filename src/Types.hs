@@ -35,13 +35,15 @@ startingBoard = [((x,y), (whatSquare x y)) | x <- [4..5], y <- [1..8]] ++ [((x,y
 
 
 ---Needs to check if there is a jump (player must do the jump) ----
-validMoves :: Board -> [Move]
-validMoves todo = []
+validMoves :: Board -> Tile -> [Move]
+validMoves b t = [(1,1)]
 
-putMaybe :: Board -> Tile -> Move -> Maybe Board
-putMaybe b t xy = case b!!xy of
+putMaybe :: Board -> Tile -> (Move,Move) -> Maybe Board
+putMaybe b t (oldmove,newmove) = case b!!newmove of
 -- TODO: place king tile if move is on opponents edge
-               EmptyTile -> Just $ map (\(ij,tij) -> if ij == xy then (ij,t) else (ij,tij)) b 
+               EmptyRTile -> Just $ map (\(m,ot) -> if m == oldmove then (m,EmptyRTile)
+                                                    else if m == newmove then (m,t)
+                                                    else (m,ot)) b 
                _         -> Nothing
 
 -------------------------------------------------------------------------------
@@ -49,7 +51,7 @@ putMaybe b t xy = case b!!xy of
 -------------------------------------------------------------------------------
 
 data Player = 
-  Player { playerMove :: Tile -> Board -> IO Move
+  Player { playerMove :: Tile -> Board -> IO (Move,Move)
          , playerName :: String
          } 
 
