@@ -10,7 +10,7 @@ import qualified Data.Maybe as M
 -------------------------------------------------------------------------------
 
 --R = Red--- B = Black --- R = Red King ---- BK = Black King
-data Tile = EmptyTile | EmptyRTile | EmptyBTile | R | B | RK | BK
+data Tile = EmptyTile | EmptyPlayTile | R | B | RK | BK
   deriving (Eq)
 
 type Move   = (Int,Int)
@@ -22,16 +22,16 @@ b!!ij = M.fromMaybe EmptyTile (lookup ij b)
 
 whatSquare :: Int -> Int -> Tile
 whatSquare x y = if (x `mod` 2 == y `mod` 2) then
-                        EmptyRTile
+                        EmptyPlayTile
                  else
-                        EmptyBTile
+                        EmptyTile
 
 emptyBoard :: Board
 emptyBoard = [((x,y), (whatSquare x y)) | x <- [1..8], y <- [1..8]]
 
 startingBoard :: Board
-startingBoard = [((x,y), (whatSquare x y)) | x <- [4..5], y <- [1..8]] ++ [((x,y), R) | x<-[1..3], y<-[1..8], (whatSquare x y) == EmptyRTile ] ++ 
-    [((x,y), B) | x<-[6..8], y<-[1..8], (whatSquare x y) == EmptyRTile ] 
+startingBoard = [((x,y), (whatSquare x y)) | x <- [4..5], y <- [1..8]] ++ [((x,y), R) | x<-[1..3], y<-[1..8], (whatSquare x y) == EmptyPlayTile ] ++ 
+    [((x,y), B) | x<-[6..8], y<-[1..8], (whatSquare x y) == EmptyPlayTile ] 
 
 
 ---Needs to check if there is a jump (player must do the jump) ----
@@ -41,7 +41,7 @@ validMoves b t = [(1,1)]
 putMaybe :: Board -> Tile -> (Move,Move) -> Maybe Board
 putMaybe b t (oldmove,newmove) = case b!!newmove of
 -- TODO: place king tile if move is on opponents edge
-               EmptyRTile -> Just $ map (\(m,ot) -> if m == oldmove then (m,EmptyRTile)
+               EmptyPlayTile -> Just $ map (\(m,ot) -> if m == oldmove then (m,EmptyPlayTile)
                                                     else if m == newmove then (m,t)
                                                     else (m,ot)) b 
                _         -> Nothing
@@ -103,9 +103,8 @@ instance Show PlayerInfo where
 
 
 instance Show Tile where
-  show EmptyTile = "     " ---For temporary compiling purposes
-  show EmptyRTile = "  .  "
-  show EmptyBTile = "     "
+  show EmptyTile = "  .  " --- tiles that are Empty
+  show EmptyPlayTile = "     " --- Tiles that are Empty that can be played
   show R         = "  R  "
   show B         = "  B  "
   show RK        = " RK "
