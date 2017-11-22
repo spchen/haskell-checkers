@@ -27,10 +27,10 @@ whatSquare x y = if (x `mod` 2 == y `mod` 2) then
 
 initalSquare :: Int -> Int -> Tile
 initalSquare x y = if (x `mod` 2 == y `mod` 2) then
-                        (if (x <= 3 && x >= 1) then
+                        (if (y <= 3 && y >= 1) then
                           B
                         else
-                          (if (x >=6 && x <= 8) then
+                          (if (y >=6 && y <= 8) then
                             R
                           else
                             EmptyPlayTile))
@@ -38,10 +38,10 @@ initalSquare x y = if (x `mod` 2 == y `mod` 2) then
                         EmptyTile
 
 emptyBoard :: Board
-emptyBoard = [[whatSquare x y | y <-[1..8]] | x <- [1..8]]
+emptyBoard = [[whatSquare x y | y <-[0..8]] | x <- [0..8]]
 
 startingBoard :: Board
-startingBoard = [[initalSquare x y | y <-[1..8]] | x <- [1..8]]
+startingBoard = [[initalSquare x y | y <-[0..8]] | x <- [0..8]]
 
 ---Needs to check if there is a jump (player must do the jump) ----
 validMoves :: Board -> Tile -> [Move]
@@ -123,11 +123,24 @@ instance Show Tile where
   show RK        = " RK "
   show BK        = " BK "
 
+--showBoard :: Board -> String
+--showBoard b = let blist = boardAsList b
+--              in  unlines [Data.List.intercalate "|" row | row <- blist]
+--              where
+--                boardAsList b = [[show ((b Data.List.!! x) Data.List.!! y) | y <- [1..8]] | x <- [1..8]]
+                  --[showRow b y | y <- [1..8]]
+
+                 --[[show ((b Data.List.!! x) Data.List.!! y) | y <- [1..8]] | x <- [1..8]]
+
 showBoard :: Board -> String
-showBoard b = let blist = boardAsList b
-              in  unlines [Data.List.intercalate "|" row | row <- blist]
-              where
-                boardAsList b = [[show ((b Data.List.!! x) Data.List.!! y) | y <- [1..8]] | x <- [1..8]]
+showBoard b = unlines [showRow b y | y <- [1..8]]
+
+showRow :: Board -> Int -> String
+showRow b i = showRowAux b i 8
+
+showRowAux :: Board -> Int -> Int -> String
+showRowAux b i 1 = show ((b Data.List.!! 1) Data.List.!! i)
+showRowAux b i x = (show ((b Data.List.!! x) Data.List.!! i) ) ++ "|" ++ (showRowAux b i (x-1))
 
 --not sure works plus not needed since implementing GUI
 --showTileNumbers :: String
