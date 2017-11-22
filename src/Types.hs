@@ -18,6 +18,9 @@ type Move   = ((Int,Int),(Int,Int))
 type Board  = [[Tile]] 
 
 
+(!!) :: Board -> (Int,Int) -> Tile
+b!!(x,y) = (b Data.List.!! x) Data.List.!! y
+
 -- Used to determine if a square is playable or not
 whatSquare :: Int -> Int -> Tile
 whatSquare x y = if (x `mod` 2 == y `mod` 2) then
@@ -48,16 +51,51 @@ validMoves :: Board -> Tile -> [Move]
 validMoves b t = error "isneeded?"
 
 putMaybe :: Board -> Tile -> (Move) -> Maybe Board
-putMaybe b t (oldmove,newmove) = error "here"
+putMaybe b t m@((ox,oy),(nx,ny)) = case b!!(nx,ny) of
+               EmptyPlayTile -> if (isSimpleMove t m) then
+                      case t of
+                        B -> if (nx == 8 && b!!(ox,oy) /= BK) then
+                          -- KING ME
+                            error "kings not supported yet"
+                          else
+                            Just $ makeSimpleMove b m B
+                        R -> if (nx == 0 && b!!(ox,oy) /= RK) then
+                          -- king
+                            error "kings not supported "
+                          else
+                            Just $ makeSimpleMove b m R
+                  else
+                      error "no jumping yet"
+               _         -> Nothing
 
---          case b!!newmove of
--- TODO: place king tile if move is on opponents edge
---               EmptyPlayTile -> Just $ map (\(m,ot) -> if m == oldmove then (m,EmptyPlayTile)
---                                                    else if m == newmove then (m,t)
---                                                    else (m,ot)) b 
---               _         -> Nothing
 
+makeJump :: Board -> [Move] -> Tile -> Board
+makeJump b [] t = b
+makeJump b (m@((ox,oy),(nx,ny)):xs) t = makeJump (makeSimpleMove (replaceTile b (removeWhich m) EmptyPlayTile) m t) xs t
 
+--todo write simpler
+removeWhich :: Move -> (Int,Int)
+removeWhich ((ox,oy), (nx,ny)) = let xi = if (nx > ox) then 1 else -1 in let xj = if (ny > oy) then 1 else -1 in (nx+xi, ny+xj)
+
+makeSimpleMove :: Board -> Move-> Tile -> Board
+makeSimpleMove b ((ox,oy),(nx,ny)) t = replaceTile (replaceTile b (ox,oy) EmptyPlayTile) (nx,ny) t
+
+replaceTile :: Board -> (Int,Int) -> Tile -> Board
+replaceTile b (ox,oy) t = 
+    let new_col = replace ox t (b Data.List.!! oy)
+    in replace oy new_col b
+
+replace :: Int -> a -> [a] -> [a]
+replace i x xs = take i xs ++ x : drop (i+1) xs
+
+-- No jumping required
+-- Need to handle king case
+isSimpleMove :: Tile -> Move -> Bool
+isSimpleMove t ((ox,oy),(nx,ny)) = 
+  case t of
+    B -> (nx - ox == 1) && (ny - oy == 1)
+    R -> (nx - ox == -1) && (ny - oy == -1)
+    _ -> False
 
 -------------------------------------------------------------------------------
 --- Player --------------------------------------------------------------------
@@ -140,8 +178,7 @@ showRow b i = showRowAux b i 8
 
 showRowAux :: Board -> Int -> Int -> String
 showRowAux b i 1 = show ((b Data.List.!! 1) Data.List.!! i)
-showRowAux b i x = (show ((b Data.List.!! x) Data.List.!! i) ) ++ "|" ++ (showRowAux b i (x-1))
-
+showRowAux b i x = (showRowAux b i (x-1)) ++ "|" ++ (show ((b Data.List.!! x) Data.List.!! i) )
 --not sure works plus not needed since implementing GUI
 --showTileNumbers :: String
 --showTileNumbers  = (unlines
