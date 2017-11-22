@@ -2,7 +2,7 @@ module Types where
 
 import Prelude hiding ((!!))
 
-import qualified Data.List 
+import qualified Data.List
 import qualified Data.Maybe as M 
 
 -------------------------------------------------------------------------------
@@ -13,47 +13,60 @@ import qualified Data.Maybe as M
 data Tile = EmptyTile | EmptyPlayTile | R | B | RK | BK
   deriving (Eq)
 
-type Move   = (Int,Int)
+type Move   = ((Int,Int),(Int,Int))
 
-type Board  = [(Move, Tile)] 
+type Board  = [[Tile]] 
 
-(!!) :: Board -> Move -> Tile
-b!!ij = M.fromMaybe EmptyTile (lookup ij b) 
 
+-- Used to determine if a square is playable or not
 whatSquare :: Int -> Int -> Tile
 whatSquare x y = if (x `mod` 2 == y `mod` 2) then
                         EmptyPlayTile
                  else
                         EmptyTile
 
+initalSquare :: Int -> Int -> Tile
+initalSquare x y = if (x `mod` 2 == y `mod` 2) then
+                        (if (x <= 3 && x >= 1) then
+                          B
+                        else
+                          (if (x >=6 && x <= 8) then
+                            R
+                          else
+                            EmptyPlayTile))
+                 else
+                        EmptyTile
+
 emptyBoard :: Board
-emptyBoard = [((x,y), (whatSquare x y)) | x <- [1..8], y <- [1..8]]
+emptyBoard = [[whatSquare x y | y <-[1..8]] | x <- [1..8]]
 
 startingBoard :: Board
-startingBoard = [((x,y), (whatSquare x y)) | x <- [4..5], y <- [1..8]] ++ [((x,y), R) | x<-[1..3], y<-[1..8], (whatSquare x y) == EmptyPlayTile ] ++ 
-    [((x,y), B) | x<-[6..8], y<-[1..8], (whatSquare x y) == EmptyPlayTile ] 
-
+startingBoard = [[initalSquare x y | y <-[1..8]] | x <- [1..8]]
 
 ---Needs to check if there is a jump (player must do the jump) ----
 validMoves :: Board -> Tile -> [Move]
-validMoves b t = [(1,1)]
+validMoves b t = error "isneeded?"
 
-putMaybe :: Board -> Tile -> (Move,Move) -> Maybe Board
-putMaybe b t (oldmove,newmove) = case b!!newmove of
+putMaybe :: Board -> Tile -> (Move) -> Maybe Board
+putMaybe b t (oldmove,newmove) = error "here"
+
+--          case b!!newmove of
 -- TODO: place king tile if move is on opponents edge
-               EmptyPlayTile -> Just $ map (\(m,ot) -> if m == oldmove then (m,EmptyPlayTile)
-                                                    else if m == newmove then (m,t)
-                                                    else (m,ot)) b 
-               _         -> Nothing
+--               EmptyPlayTile -> Just $ map (\(m,ot) -> if m == oldmove then (m,EmptyPlayTile)
+--                                                    else if m == newmove then (m,t)
+--                                                    else (m,ot)) b 
+--               _         -> Nothing
+
+
 
 -------------------------------------------------------------------------------
 --- Player --------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
 data Player = 
-  Player { playerMove :: Tile -> Board -> IO (Move,Move)
+  Player { playerMove :: Tile -> Board -> IO Move
          , playerName :: String
-         } 
+         }
 
 -------------------------------------------------------------------------------
 --- Score ---------------------------------------------------------------------
@@ -114,8 +127,9 @@ showBoard :: Board -> String
 showBoard b = let blist = boardAsList b
               in  unlines [Data.List.intercalate "|" row | row <- blist]
               where
-                boardAsList b = [[show (b!!(x,y)) | y <- [1..8]] | x <- [1..8]]
+                boardAsList b = [[show ((b Data.List.!! x) Data.List.!! y) | y <- [1..8]] | x <- [1..8]]
 
-showTileNumbers :: String
-showTileNumbers  = (unlines
-                   [Data.List.intercalate "|" ["(" ++ show x ++ "," ++ show y ++ ")" | y <- [1..8]] | x <- [1..8]])
+--not sure works plus not needed since implementing GUI
+--showTileNumbers :: String
+--showTileNumbers  = (unlines
+--                   [Data.List.intercalate "|" ["(" ++ show x ++ "," ++ show y ++ ")" | y <- [1..8]] | x <- [1..8]])
