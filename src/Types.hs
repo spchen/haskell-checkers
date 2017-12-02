@@ -51,6 +51,26 @@ startingBoard = [[initalSquare x y | y <-[1..8]] | x <- [1..8]]
 validMoves :: Board -> Tile -> [Move]
 validMoves b t = error "isneeded?"
 --Maybe to check when there is a draw -- See scoreBoard in Checks.hs
+--
+
+
+---Jump Methods---
+isJump :: Move -> Bool
+isJump ((ox,oy),(nx,ny)) = (ox - nx) == 1 && (ny - oy) == 1
+
+validList :: [Move] -> Tile -> Bool
+validList [] t = True
+validList ((ox,oy),(nx,ny)):ml t
+    | t == B = (ny - oy) == 2 && b!!(nx,ny) == EmptyPlayTile && validList ml t
+    | t == R = (oy - ny) == 2 && b!!(nx,ny) == EmptyPlayTile && validList ml t
+    | t `elem` [BK, RK] = abs (oy - ny) == 2 && b!!(nx,ny) == EmptyPlayTile && validList ml t
+    | otherwise = False
+
+makeJump :: Board -> [Move] -> Tile -> Maybe Board
+makeJump b [] t = b
+makeJump b (m@((ox,oy),(nx,ny)):xs) t = makeJump (makeSimpleMove (replaceTile b (removeWhich m) EmptyPlayTile) m t) xs t
+
+--End Jump Methods---
 
 
 putMaybe :: Board -> Tile -> [Move] -> Maybe Board
@@ -58,24 +78,21 @@ putMaybe b t (((ox,oy),(nx,ny)):ml) =
   let m = ((ox,oy),(nx,ny)) in 
   case b!!(nx,ny) of
     EmptyPlayTile -> 
-      if null ml then
+      if not $ isJump m then
       case t of
         B ->  if (nx == 7 && b!!(ox,oy) /= BK) then
-                error "kings not supported yet" --KING ME
+                 Just $ makeSimpleMove b m BK
               else
                 Just $ makeSimpleMove b m B
         R ->  if (nx == 0 && b!!(ox,oy) /= RK) then
-                error "kings not supported "
+                 Just $ makeSimpleMove b m RK
               else
                 Just $ makeSimpleMove b m R
       else
-        error "no jumping yet"
+        -- tests for a valid jump
+        makeJump b m:ml
     _         -> trace ("d"++(show (b!!(nx,ny)))) (trace ("s"++(show (b!!(ox,oy)))) Nothing)
 
-
-makeJump :: Board -> [Move] -> Tile -> Board
-makeJump b [] t = b
-makeJump b (m@((ox,oy),(nx,ny)):xs) t = makeJump (makeSimpleMove (replaceTile b (removeWhich m) EmptyPlayTile) m t) xs t
 
 --todo write simpler
 removeWhich :: Move -> (Int,Int)
