@@ -7,6 +7,8 @@ import Types
 flipTile :: Tile -> Tile
 flipTile R = B 
 flipTile B = R
+flipTile Bk = Rk
+flipTile Rk = Bk
 flipTile _ = EmptyTile
 
 kingTile :: Tile -> Tile
