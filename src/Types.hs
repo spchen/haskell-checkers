@@ -70,6 +70,10 @@ makeJump :: Board -> [Move] -> Tile -> Board
 makeJump b [] t = b
 makeJump b (m@((ox,oy),(nx,ny)):xs) t = makeJump (makeSimpleMove (replaceTile b (removeWhich m) EmptyPlayTile) m t) xs t
 
+--todo write simpler
+removeWhich :: Move -> (Int,Int)
+removeWhich ((ox,oy), (nx,ny)) = let xi = if (nx > ox) then -1 else 1 in let xj = if (ny > oy) then -1 else 1 in (nx+xi, ny+xj)
+
 --End Jump Methods---
 
 
@@ -96,10 +100,6 @@ putMaybe b t (((ox,oy),(nx,ny)):ml) =
             Nothing
     _         -> trace ("d"++(show (b!!(nx,ny)))) (trace ("s"++(show (b!!(ox,oy)))) Nothing)
 
-
---todo write simpler
-removeWhich :: Move -> (Int,Int)
-removeWhich ((ox,oy), (nx,ny)) = let xi = if (nx > ox) then 1 else -1 in let xj = if (ny > oy) then 1 else -1 in (nx+xi, ny+xj)
 
 makeSimpleMove :: Board -> Move-> Tile -> Board
 makeSimpleMove b ((ox,oy),(nx,ny)) t = replaceTile (replaceTile b (ox,oy) EmptyPlayTile) (nx,ny) t
