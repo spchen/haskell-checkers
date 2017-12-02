@@ -58,15 +58,15 @@ validMoves b t = error "isneeded?"
 isJump :: Move -> Bool
 isJump ((ox,oy),(nx,ny)) = (ox - nx) == 1 && (ny - oy) == 1
 
-validList :: [Move] -> Tile -> Bool
-validList [] t = True
-validList ((ox,oy),(nx,ny)):ml t
-    | t == B = (ny - oy) == 2 && b!!(nx,ny) == EmptyPlayTile && validList ml t
-    | t == R = (oy - ny) == 2 && b!!(nx,ny) == EmptyPlayTile && validList ml t
-    | t `elem` [BK, RK] = abs (oy - ny) == 2 && b!!(nx,ny) == EmptyPlayTile && validList ml t
+validList :: Board -> [Move] -> Tile -> Bool
+validList b [] t = True
+validList b (((ox,oy),(nx,ny)):ml) t
+    | t == B = (ny - oy) == 2 && b!!(nx,ny) == EmptyPlayTile && validList b ml t
+    | t == R = (oy - ny) == 2 && b!!(nx,ny) == EmptyPlayTile && validList b ml t
+    | t `elem` [BK, RK] = abs (oy - ny) == 2 && b!!(nx,ny) == EmptyPlayTile && validList b ml t
     | otherwise = False
 
-makeJump :: Board -> [Move] -> Tile -> Maybe Board
+makeJump :: Board -> [Move] -> Tile -> Board
 makeJump b [] t = b
 makeJump b (m@((ox,oy),(nx,ny)):xs) t = makeJump (makeSimpleMove (replaceTile b (removeWhich m) EmptyPlayTile) m t) xs t
 
@@ -90,7 +90,10 @@ putMaybe b t (((ox,oy),(nx,ny)):ml) =
                 Just $ makeSimpleMove b m R
       else
         -- tests for a valid jump
-        makeJump b m:ml
+        if validList b (m:ml) t then
+            Just $ makeJump b (m:ml) t
+        else
+            Nothing
     _         -> trace ("d"++(show (b!!(nx,ny)))) (trace ("s"++(show (b!!(ox,oy)))) Nothing)
 
 
