@@ -12,7 +12,7 @@ player2 = playerHuman "Player2"
 
 main :: IO ()
 main = do
-    putStrLn "This is checkers."
+    putStrLn "Let's play Checkers!."
     rounds  <- prompt "How many rounds should we play?"
     score   <- playRounds (read rounds) player1 player2 
     putStrLn $ showFinalScore score 

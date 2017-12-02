@@ -9,6 +9,11 @@ flipTile R = B
 flipTile B = R
 flipTile _ = EmptyTile
 
+kingTile :: Tile -> Tile
+kingTile R = RK
+kingTile B = BK
+kingTile _ = EmptyTile
+
 p1wins, p2wins :: Board -> Bool
 p1wins b = tileWins b R
 p2wins b = tileWins b B
@@ -17,8 +22,9 @@ p2wins b = tileWins b B
 -- OR
 -- TODO: opponent has no valid moves
 tileWins :: Board -> Tile -> Bool
+-- eliminates all opponents pieces or forces the opponent to have no moves
 tileWins b t = 
-   noTileOnBoard b (flipTile t) || (validMoves b (flipTile t)) == []
+   noTileOnBoard b (flipTile t) -- || (validMoves b (flipTile t)) == []
 
 noTileOnBoard:: Board -> Tile -> Bool
 noTileOnBoard b t = not (any (\row-> any (\col -> b!!(row,col) == t) [1..8]) [1..8])
@@ -30,7 +36,7 @@ scoreBoard tile board
   | tileWins board (flipTile tile)   
   = Just (-1) 
 -- neither player has any valid moves = draw
-  | (validMoves board tile) == [] && (validMoves board (flipTile tile)) == []           
-  = Just 0
+-- | (validMoves board tile) == [] && (validMoves board (flipTile tile)) == []           
+ -- = Just 0
   | otherwise
   = Nothing 

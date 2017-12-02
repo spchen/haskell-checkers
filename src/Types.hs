@@ -5,6 +5,7 @@ import Prelude hiding ((!!))
 import qualified Data.List
 import qualified Data.Maybe as M 
 
+import Debug.Trace
 -------------------------------------------------------------------------------
 --- Checkers Board ------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -19,7 +20,7 @@ type Board  = [[Tile]]
 
 
 (!!) :: Board -> (Int,Int) -> Tile
-b!!(x,y) = (b Data.List.!! x) Data.List.!! y
+b!!(x,y) = (b Data.List.!! (x)) Data.List.!! (y)
 
 -- Used to determine if a square is playable or not
 whatSquare :: Int -> Int -> Tile
@@ -41,32 +42,35 @@ initalSquare x y = if (x `mod` 2 == y `mod` 2) then
                         EmptyTile
 
 emptyBoard :: Board
-emptyBoard = [[whatSquare x y | y <-[0..8]] | x <- [0..8]]
+emptyBoard = [[whatSquare x y | y <-[1..8]] | x <- [1..8]]
 
 startingBoard :: Board
-startingBoard = [[initalSquare x y | y <-[0..8]] | x <- [0..8]]
+startingBoard = [[initalSquare x y | y <-[1..8]] | x <- [1..8]]
 
 ---Needs to check if there is a jump (player must do the jump) ----
 validMoves :: Board -> Tile -> [Move]
 validMoves b t = error "isneeded?"
+--Maybe to check when there is a draw -- See scoreBoard in Checks.hs
 
-putMaybe :: Board -> Tile -> (Move) -> Maybe Board
-putMaybe b t m@((ox,oy),(nx,ny)) = case b!!(nx,ny) of
-               EmptyPlayTile -> if (isSimpleMove t m) then
-                      case t of
-                        B -> if (nx == 8 && b!!(ox,oy) /= BK) then
-                          -- KING ME
-                            error "kings not supported yet"
-                          else
-                            Just $ makeSimpleMove b m B
-                        R -> if (nx == 0 && b!!(ox,oy) /= RK) then
-                          -- king
-                            error "kings not supported "
-                          else
-                            Just $ makeSimpleMove b m R
-                  else
-                      error "no jumping yet"
-               _         -> Nothing
+
+putMaybe :: Board -> Tile -> [Move] -> Maybe Board
+putMaybe b t (((ox,oy),(nx,ny)):ml) = 
+  let m = ((ox,oy),(nx,ny)) in 
+  case b!!(nx,ny) of
+    EmptyPlayTile -> 
+      if null ml then
+      case t of
+        B ->  if (nx == 7 && b!!(ox,oy) /= BK) then
+                error "kings not supported yet" --KING ME
+              else
+                Just $ makeSimpleMove b m B
+        R ->  if (nx == 0 && b!!(ox,oy) /= RK) then
+                error "kings not supported "
+              else
+                Just $ makeSimpleMove b m R
+      else
+        error "no jumping yet"
+    _         -> trace ("d"++(show (b!!(nx,ny)))) (trace ("s"++(show (b!!(ox,oy)))) Nothing)
 
 
 makeJump :: Board -> [Move] -> Tile -> Board
@@ -82,8 +86,8 @@ makeSimpleMove b ((ox,oy),(nx,ny)) t = replaceTile (replaceTile b (ox,oy) EmptyP
 
 replaceTile :: Board -> (Int,Int) -> Tile -> Board
 replaceTile b (ox,oy) t = 
-    let new_col = replace ox t (b Data.List.!! oy)
-    in replace oy new_col b
+    let new_col = replace (oy) t (b Data.List.!! (ox))
+    in replace (ox) new_col b
 
 replace :: Int -> a -> [a] -> [a]
 replace i x xs = take i xs ++ x : drop (i+1) xs
@@ -102,7 +106,7 @@ isSimpleMove t ((ox,oy),(nx,ny)) =
 -------------------------------------------------------------------------------
 
 data Player = 
-  Player { playerMove :: Tile -> Board -> IO Move
+  Player { playerMove :: Tile -> Board -> IO [Move]
          , playerName :: String
          }
 
@@ -171,13 +175,13 @@ instance Show Tile where
                  --[[show ((b Data.List.!! x) Data.List.!! y) | y <- [1..8]] | x <- [1..8]]
 
 showBoard :: Board -> String
-showBoard b = unlines [showRow b y | y <- [1..8]]
+showBoard b = unlines [showRow b y | y <- [0..7]]
 
 showRow :: Board -> Int -> String
-showRow b i = showRowAux b i 8
+showRow b i = showRowAux b i 7
 
 showRowAux :: Board -> Int -> Int -> String
-showRowAux b i 1 = show ((b Data.List.!! 1) Data.List.!! i)
+showRowAux b i 0 = show ((b Data.List.!! 0) Data.List.!! i)
 showRowAux b i x = (showRowAux b i (x-1)) ++ "|" ++ (show ((b Data.List.!! x) Data.List.!! i) )
 --not sure works plus not needed since implementing GUI
 --showTileNumbers :: String
