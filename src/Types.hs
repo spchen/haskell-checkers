@@ -68,6 +68,8 @@ validList b (m@((ox,oy),(nx,ny)):ml) t
 
 makeJump :: Board -> [Move] -> Tile -> Board
 makeJump b [] t = b
+makeJump b [m@((ox,oy),(nx,ny))] B = makeSimpleMove (replaceTile b (removeWhich m) EmptyPlayTile) m BK
+makeJump b [m@((ox,oy),(nx,ny))] R = makeSimpleMove (replaceTile b (removeWhich m) EmptyPlayTile) m RK
 makeJump b (m@((ox,oy),(nx,ny)):xs) t = makeJump (makeSimpleMove (replaceTile b (removeWhich m) EmptyPlayTile) m t) xs t
 
 --todo write simpler
@@ -84,11 +86,11 @@ putMaybe b t (((ox,oy),(nx,ny)):ml) =
     EmptyPlayTile -> 
       if not $ isJump m then
       case t of
-        B ->  if (nx == 7 && b!!(ox,oy) /= BK) then
+        B ->  if (ny == 7 && b!!(ox,oy) /= BK) then
                  Just $ makeSimpleMove b m BK
               else
                 Just $ makeSimpleMove b m B
-        R ->  if (nx == 0 && b!!(ox,oy) /= RK) then
+        R ->  if (ny == 0 && b!!(ox,oy) /= RK) then
                  Just $ makeSimpleMove b m RK
               else
                 Just $ makeSimpleMove b m R
@@ -182,8 +184,8 @@ instance Show Tile where
   show EmptyPlayTile = "     " --- Tiles that are Empty that can be played
   show R         = "  R  "
   show B         = "  B  "
-  show RK        = " RK "
-  show BK        = " BK "
+  show RK        = " RK  "
+  show BK        = " BK  "
 
 --showBoard :: Board -> String
 --showBoard b = let blist = boardAsList b
