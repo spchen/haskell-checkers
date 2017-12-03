@@ -47,6 +47,15 @@ emptyBoard = [[whatSquare x y | y <-[1..8]] | x <- [1..8]]
 startingBoard :: Board
 startingBoard = [[initalSquare x y | y <-[1..8]] | x <- [1..8]]
 
+-- to test winning scenarios
+testSquare x y =  if (x `mod` 2 == y `mod` 2) then
+                    if x==4 && y==4 then B
+                    else if x==5 && y==5 then R
+                    else EmptyPlayTile
+                  else EmptyTile
+
+testBoard = [[testSquare x y | y <- [1..8]] | x <- [1..8]]
+
 ---Needs to check if there is a jump (player must do the jump) ----
 validMoves :: Board -> Tile -> [Move]
 validMoves b t = error "isneeded?"
@@ -68,8 +77,8 @@ validList b (m@((ox,oy),(nx,ny)):ml) t
 
 makeJump :: Board -> [Move] -> Tile -> Board
 makeJump b [] t = b
-makeJump b [m@((ox,oy),(nx,ny))] B = makeSimpleMove (replaceTile b (removeWhich m) EmptyPlayTile) m BK
-makeJump b [m@((ox,oy),(nx,ny))] R = makeSimpleMove (replaceTile b (removeWhich m) EmptyPlayTile) m RK
+makeJump b [m@((ox,oy),(nx,7))] B = makeSimpleMove (replaceTile b (removeWhich m) EmptyPlayTile) m BK
+makeJump b [m@((ox,oy),(nx,0))] R = makeSimpleMove (replaceTile b (removeWhich m) EmptyPlayTile) m RK
 makeJump b (m@((ox,oy),(nx,ny)):xs) t = makeJump (makeSimpleMove (replaceTile b (removeWhich m) EmptyPlayTile) m t) xs t
 
 --todo write simpler
