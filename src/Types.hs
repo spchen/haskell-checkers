@@ -56,7 +56,7 @@ validMoves b t = error "isneeded?"
 
 ---Jump Methods---
 isJump :: Move -> Bool
-isJump ((ox,oy),(nx,ny)) = (ox - nx) == 1 && (ny - oy) == 1
+isJump ((ox,oy),(nx,ny)) = abs (ox - nx) == 2 && abs (ny - oy) == 2
 
 validList :: Board -> [Move] -> Tile -> Bool
 validList b [] t = True
