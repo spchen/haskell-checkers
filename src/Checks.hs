@@ -18,7 +18,7 @@ tileWins b t =
    noTileOnBoard b (flipTile t) -- || (validMoves b (flipTile t)) == []
 
 noTileOnBoard:: Board -> Tile -> Bool
-noTileOnBoard b t = not (any (\row-> any (\col -> b!!(row,col) == t) [1..8]) [1..8])
+noTileOnBoard b t = not (any (\row-> any (\col -> b!!(row,col) == t) [0..7]) [0..7])
 
 scoreBoard :: Tile -> Board -> Maybe Int 
 scoreBoard tile board 

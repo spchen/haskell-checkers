@@ -30,8 +30,8 @@ playRound p1 p2 score i = do
    putStrLn ("Score:: " ++ showScore score)
    putStrLn ("Round " ++ show i ++ "!")
    putStrLn ((if (i `mod` 2 == 0) then show p2 else show p1)  ++ " plays first")
-   putStrLn (showBoard startingBoard)
-   result <- if (i `mod` 2 == 0) then play p2 p1 startingBoard else play p1 p2 startingBoard
+   putStrLn (showBoard testBoard)
+   result <- if (i `mod` 2 == 0) then play p2 p1 testBoard else play p1 p2 testBoard
    case result of 
       Just p  -> putStrLn (show p ++ " wins!\n\n") >> return (incr p score)
       Nothing -> putStrLn "Its a draw!\n\n" >> return score 
