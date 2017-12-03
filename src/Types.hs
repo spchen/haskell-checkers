@@ -60,10 +60,10 @@ isJump ((ox,oy),(nx,ny)) = abs (ox - nx) == 2 && abs (ny - oy) == 2
 
 validList :: Board -> [Move] -> Tile -> Bool
 validList b [] t = True
-validList b (((ox,oy),(nx,ny)):ml) t
-    | t == B = (ny - oy) == 2 && b!!(nx,ny) == EmptyPlayTile && validList b ml t
-    | t == R = (oy - ny) == 2 && b!!(nx,ny) == EmptyPlayTile && validList b ml t
-    | t `elem` [BK, RK] = abs (oy - ny) == 2 && b!!(nx,ny) == EmptyPlayTile && validList b ml t
+validList b (m@((ox,oy),(nx,ny)):ml) t
+    | t == B = (ny - oy) == 2 && b!!(nx,ny) == EmptyPlayTile && b!!(removeWhich m) `elem` [R,RK] && validList b ml t
+    | t == R = (oy - ny) == 2 && b!!(nx,ny) == EmptyPlayTile && b!!(removeWhich m) `elem` [B,BK] && validList b ml t
+    | t `elem` [BK, RK] = abs (oy - ny) == 2 && b!!(nx,ny) == EmptyPlayTile && b!!(removeWhich m) `elem` [flipTile t, flipTile (unKingTile t)] && validList b ml t
     | otherwise = False
 
 makeJump :: Board -> [Move] -> Tile -> Board
@@ -207,3 +207,20 @@ showRowAux b i x = (showRowAux b i (x-1)) ++ "|" ++ (show ((b Data.List.!! x) Da
 --showTileNumbers :: String
 --showTileNumbers  = (unlines
 --                   [Data.List.intercalate "|" ["(" ++ show x ++ "," ++ show y ++ ")" | y <- [1..8]] | x <- [1..8]])
+
+flipTile :: Tile -> Tile
+flipTile R = B 
+flipTile B = R
+flipTile BK = RK
+flipTile RK = BK
+flipTile _ = EmptyTile
+
+kingTile :: Tile -> Tile
+kingTile R = RK
+kingTile B = BK
+kingTile _ = EmptyTile
+
+unKingTile :: Tile -> Tile
+unKingTile RK = R
+unKingTile BK = B
+unKingTile _ = EmptyTile

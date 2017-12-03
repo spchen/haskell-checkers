@@ -4,17 +4,6 @@ import Prelude hiding ((!!))
 
 import Types 
 
-flipTile :: Tile -> Tile
-flipTile R = B 
-flipTile B = R
-flipTile BK = RK
-flipTile RK = BK
-flipTile _ = EmptyTile
-
-kingTile :: Tile -> Tile
-kingTile R = RK
-kingTile B = BK
-kingTile _ = EmptyTile
 
 p1wins, p2wins :: Board -> Bool
 p1wins b = tileWins b R
