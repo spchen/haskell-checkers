@@ -56,7 +56,7 @@ validMoves b t = error "isneeded?"
 
 ---Jump Methods---
 isJump :: Move -> Bool
-isJump ((ox,oy),(nx,ny)) = abs (ox - nx) == 2 && abs (ny - oy) == 2
+isJump ((ox,oy),(nx,ny)) = (ox - nx) == 1 && (ny - oy) == 1
 
 validList :: Board -> [Move] -> Tile -> Bool
 validList b [] t = True
@@ -82,7 +82,7 @@ putMaybe b t (((ox,oy),(nx,ny)):ml) =
   let m = ((ox,oy),(nx,ny)) in 
   case b!!(nx,ny) of
     EmptyPlayTile -> 
-      if trace (show (not $ isJump m)) (not $ isJump m) then
+      if not $ isJump m then
       case t of
         B ->  if (nx == 7 && b!!(ox,oy) /= BK) then
                  Just $ makeSimpleMove b m BK
@@ -98,7 +98,7 @@ putMaybe b t (((ox,oy),(nx,ny)):ml) =
             Just $ makeJump b (m:ml) t
         else
             Nothing
-    _         -> trace ("destTile: "++(show (b!!(nx,ny)))) (trace ("srcTile: "++(show (b!!(ox,oy)))) Nothing)
+    _         -> trace ("d"++(show (b!!(nx,ny)))) (trace ("s"++(show (b!!(ox,oy)))) Nothing)
 
 
 makeSimpleMove :: Board -> Move-> Tile -> Board
