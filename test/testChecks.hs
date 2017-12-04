@@ -51,4 +51,8 @@ tileWinsTest = (tileWins emptyBoard R)
     && (not $ tileWins [[B | y<-[1..8]] | x <-[1..8]] R)
 
 scoreBoardTest :: Bool
-scoreBoardTest = True
+scoreBoardTest =
+    scoreBoard B startingBoard == Nothing
+    && (scoreBoard R startingBoard) == Nothing
+    && (scoreBoard B [[R | y<-[1..8]] | x <-[1..8]] == Just (-1))
+    && (scoreBoard R [[R | y<-[1..8]] | x <-[1..8]] == Just 1)
