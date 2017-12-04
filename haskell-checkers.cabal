@@ -20,7 +20,7 @@ executable haskell-checkers
   main-is:             Checkers.hs
   -- other-modules:       
   -- other-extensions:    
-  build-depends:       base >=4.9 && <4.10, gloss >=1.11 && <1.12
+  build-depends:       base >=4.9, gloss >=1.11 && <1.12
   hs-source-dirs:      src
   default-language:    Haskell2010
 

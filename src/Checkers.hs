@@ -7,8 +7,14 @@ import Checks
 import Misc 
 
 import Graphics.Gloss
+import Graphics.Gloss.Interface.IO.Game
 
 import Players.Human    (playerHuman   )
+
+import Debug.Trace
+
+
+
 
 player1, player2 :: Player
 player1 = playerHuman "Player1"
@@ -32,24 +38,57 @@ renderPieces b = pictures [(pictures pieces), (pictures kings)]
         -- pretty sure no background
         kings = [translate (fromIntegral (2*x-9)*30) (fromIntegral (9-2*y)*30) $ color white $ Text kstr | x <- [1..8], y <-[1..8], t<-[b!!(x-1,y-1)], kstr <- ["BK","RK"], t == BK && kstr == "BK" || t == RK && kstr == "RK"]
  
+type State = (Board, (Int,Int), Tile)
 
---These are already defined
--- circle takes radius
---circleSolid :: Float -> Picture 
+handleEvent :: Event -> State -> State
+-- | Left mouse click
+handleEvent (EventKey (MouseButton LeftButton) Down _ (x, y)) state@(b,(_,_),t)
+    | x' < 0 || x' > 7 || y' < 0 || y' > 7 = state-- If pressed outside board do nothing
+    | otherwise =  trace ("handleEvent MouseButton Down:"++(show ((x',y'),t))) (b,(x',y'),t) -- update state
+    where 
+      x' = (round $ (x+270)/60) - 1 
+      y' = (round $ (270-y)/60) - 1
+handleEvent (EventKey (MouseButton LeftButton) Up _ (x, y)) state@(b,(ox,oy),t)
+    | isJump m && (nx,ny) `elem` (validJumps nx ny b t) && pieceToMove == t
+      = case (putMaybe b t [m]) of
+          Just nb -> (nb,(nx,ny),t)
+          Nothing -> state
+    | pieceToMove == t
+      = case (trace ("handleEvent MouseButton Up:"++(show m)) (putMaybe b t [m])) of
+          Just nb -> (nb,(0,0),flipTile t)
+          Nothing -> state
+    | otherwise = 
+      let msg = "Must move "++(show t)++" tile on this turn: "++(show ((ox,oy),t))
+        in trace msg state
+    where 
+      pieceToMove = b!!(ox,oy)
+      m = ((ox,oy),(nx,ny))
+      nx = (round $ (x+270)/60) - 1
+      ny = (round $ (270-y)/60) - 1
+handleEvent _ state = state -- Rest of the events - no response
 
---rectangleSolid :: Float -> Float -> Picture
-
--- overlays all the Pictures into one Picture
---pictures :: [Picture] -> Picture
-
+validJumps :: Int -> Int -> Board -> Tile -> [(Int,Int)]
+validJumps x y b B = [(x+jx,y+2) | jx <- [-2,2], x+jx<=7, x+jx>=0, y+2<=7, y+2>=0, b!!(x+jx,y+2) == EmptyPlayTile, b!!(removeWhich ((x,y),(x+jx,y+2))) `elem` [R,RK]]
+validJumps x y b R = [(x+jx,y-2) | jx <- [-2,2], x+jx<=7, x+jx>=0, y-2<=7, y-2>=0, b!!(x+jx,y-2) == EmptyPlayTile, b!!(removeWhich ((x,y),(x+jx,y-2))) `elem` [B,BK]]
+validJumps x y b BK = [(x+jx,y+jy) | jx <- [-2,2], jy <- [-2,2], x+jx<=7, x+jx>=0, y+jy<=7, y+jy>=0, b!!(x+jx,y+jy) == EmptyPlayTile, b!!(removeWhich ((x,y),(x+jx,y+jy))) `elem` [R,RK]]
+validJumps x y b RK = [(x+jx,y+jy) | jx <- [-2,2], jy <- [-2,2], x+jx<=7, x+jx>=0, y+jy<=7, y+jy>=0, b!!(x+jx,y+jy) == EmptyPlayTile, b!!(removeWhich ((x,y),(x+jx,y+jy))) `elem` [B,BK]]
 --END GLOSS STUFF-----------------------
 
 main :: IO ()
 main = do
-    putStrLn "Let's play Checkers!."
-    rounds  <- prompt "How many rounds should we play?"
-    score   <- playRounds (read rounds) player1 player2 
-    putStrLn $ showFinalScore score 
+    gui
+
+gui = do
+      play window white 0 state render handleEvent (\_ y-> y)
+      where
+        state = (startingBoard, (0,0), B)
+        render = \(b,(x,y),t) -> renderBoard b
+
+ascii = do
+        putStrLn "Let's play Checkers!."
+        rounds  <- prompt "How many rounds should we play?"
+        score   <- playRounds (read rounds) player1 player2 
+        putStrLn $ showFinalScore score 
 
 
 playRounds :: Int -> Player -> Player -> IO Score
@@ -73,10 +112,6 @@ playRound p1 p2 score i = do
 
 mplay :: PlayerInfo -> PlayerInfo -> Board -> IO (Maybe Winner)
 mplay pi1@(PI p1 t1 _) pi2 board = do
-  --GLOSS STUFF----------------------------
-  --display window white (pictures [renderBoard board, renderPieces board])
-  display window white (renderBoard board)
-  --END GLOSS STUFF--------------------------
   move <- (playerMove p1) t1 board
   case putMaybe board t1 move of
     Nothing -> putStrLn "Invalid move." >> return (Just pi2)
