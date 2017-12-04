@@ -16,4 +16,6 @@ cabal configure
 
 cabal build or cabal install
 
+backend modified from: https://github.com/nikivazou/tic-tac-toe
+
 frontend gui modified from: https://github.com/prateekkumarweb/haskell-go-checkers
