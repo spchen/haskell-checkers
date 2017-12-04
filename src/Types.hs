@@ -224,7 +224,8 @@ flipTile R = B
 flipTile B = R
 flipTile BK = RK
 flipTile RK = BK
-flipTile _ = EmptyTile
+flipTile EmptyTile = EmptyTile
+flipTile EmptyPlayTile = EmptyPlayTile
 
 kingTile :: Tile -> Tile
 kingTile R = RK
