@@ -94,15 +94,21 @@ putMaybe b t (((ox,oy),(nx,ny)):ml) =
   case b!!(nx,ny) of
     EmptyPlayTile -> 
       if not $ isJump m then
-      case t of
-        B ->  if (ny == 7 && b!!(ox,oy) /= BK) then
-                 Just $ makeSimpleMove b m BK
-              else
-                Just $ makeSimpleMove b m B
-        R ->  if (ny == 0 && b!!(ox,oy) /= RK) then
-                 Just $ makeSimpleMove b m RK
-              else
-                Just $ makeSimpleMove b m R
+        if isSimpleMove t m then
+          case t of
+            B ->  if (ny == 7 && b!!(ox,oy) /= BK) then
+                    Just $ makeSimpleMove b m BK
+                  else
+                    Just $ makeSimpleMove b m B
+            R ->  if (ny == 0 && b!!(ox,oy) /= RK) then
+                    Just $ makeSimpleMove b m RK
+                  else
+                    Just $ makeSimpleMove b m R
+        else
+          case t of
+            B -> Nothing
+            R -> Nothing
+            k -> Just $ makeSimpleMove b m k
       else
         -- tests for a valid jump
         if validList b (m:ml) t then
@@ -128,8 +134,8 @@ replace i x xs = take i xs ++ x : drop (i+1) xs
 isSimpleMove :: Tile -> Move -> Bool
 isSimpleMove t ((ox,oy),(nx,ny)) = 
   case t of
-    B -> (nx - ox == 1) && (ny - oy == 1)
-    R -> (nx - ox == -1) && (ny - oy == -1)
+    B -> (abs (nx - ox) == 1) && (ny - oy == 1)
+    R -> (abs (nx - ox) == 1) && (ny - oy == -1)
     _ -> False
 
 -------------------------------------------------------------------------------
@@ -230,7 +236,7 @@ flipTile EmptyPlayTile = EmptyPlayTile
 kingTile :: Tile -> Tile
 kingTile R = RK
 kingTile B = BK
-kingTile _ = EmptyTile
+kingTile t = t
 
 unKingTile :: Tile -> Tile
 unKingTile RK = R

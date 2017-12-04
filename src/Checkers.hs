@@ -34,9 +34,9 @@ renderBoard b = pictures [boardbg, (pictures playTiles), (renderPieces b)]
 renderPieces :: Board -> Picture
 renderPieces b = pictures [(pictures pieces), (pictures kings)]
     where
-        pieces = [translate (fromIntegral (2*x-9)*30) (fromIntegral (9-2*y)*30) $ color pc $ circleSolid 25 | x <- [1..8], y <- [1..8], pc <- [black,red], t<-[b!!(x-1,y-1)], t == R && pc == red || t == B && pc == black]
+        pieces = [translate (fromIntegral (2*x-9)*30) (fromIntegral (9-2*y)*30) $ color pc $ circleSolid 25 | x <- [1..8], y <- [1..8], pc <- [black, dark red], t<-[b!!(x-1,y-1)], t == R && pc == dark red || t == B && pc == black]
         -- pretty sure no background
-        kings = [translate (fromIntegral (2*x-9)*30) (fromIntegral (9-2*y)*30) $ color white $ Text kstr | x <- [1..8], y <-[1..8], t<-[b!!(x-1,y-1)], kstr <- ["BK","RK"], t == BK && kstr == "BK" || t == RK && kstr == "RK"]
+        kings = [translate (fromIntegral (2*x-9)*30 -25) (fromIntegral (9-2*y)*30 -15) $ color white $ scale 0.3 0.3 $ Text kstr | x <- [1..8], y <-[1..8], t<-[b!!(x-1,y-1)], kstr <- ["BK","RK"], t == BK && kstr == "BK" || t == RK && kstr == "RK"]
  
 type State = (Board, (Int,Int), Tile)
 
@@ -49,12 +49,12 @@ handleEvent (EventKey (MouseButton LeftButton) Down _ (x, y)) state@(b,(_,_),t)
       x' = (round $ (x+270)/60) - 1 
       y' = (round $ (270-y)/60) - 1
 handleEvent (EventKey (MouseButton LeftButton) Up _ (x, y)) state@(b,(ox,oy),t)
-    | isJump m && (nx,ny) `elem` (validJumps nx ny b t) && pieceToMove == t
-      = case (putMaybe b t [m]) of
+    | isJump m && length (validJumps nx ny b t) > 0 && pieceToMove `elem` fullTileSet
+      = case (putMaybe b pieceToMove [m]) of
           Just nb -> (nb,(nx,ny),t)
           Nothing -> state
-    | pieceToMove == t
-      = case (trace ("handleEvent MouseButton Up:"++(show m)) (putMaybe b t [m])) of
+    | pieceToMove `elem` fullTileSet
+      = case (trace ("handleEvent MouseButton Up:"++(show m)) (putMaybe b pieceToMove [m])) of
           Just nb -> (nb,(0,0),flipTile t)
           Nothing -> state
     | otherwise = 
@@ -65,6 +65,7 @@ handleEvent (EventKey (MouseButton LeftButton) Up _ (x, y)) state@(b,(ox,oy),t)
       m = ((ox,oy),(nx,ny))
       nx = (round $ (x+270)/60) - 1
       ny = (round $ (270-y)/60) - 1
+      fullTileSet = [t,kingTile t]
 handleEvent _ state = state -- Rest of the events - no response
 
 validJumps :: Int -> Int -> Board -> Tile -> [(Int,Int)]
