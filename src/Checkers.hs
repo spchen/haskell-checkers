@@ -1,5 +1,7 @@
 module Main where 
 
+import Prelude hiding ((!!))
+
 import Types 
 import Checks 
 import Misc 
@@ -17,13 +19,19 @@ window :: Display
 window = InWindow "NCheckers" (600, 600) (10, 10)
 
 renderBoard :: Board -> Picture
-renderBoard b = pictures [boardbg, (pictures playTiles)]
+renderBoard b = pictures [boardbg, (pictures playTiles), (renderPieces b)]
   where
     boardbg = color (dark white) $ rectangleSolid 480 480
-    playTiles = [translate (fromIntegral (2*x -9)*30) (fromIntegral (9-2*y)*30) $ color black $ rectangleSolid 60 60 | x <- [1..8], y <- [1..8], (x-1) `mod` 2 == (y-1) `mod` 2]
+    playTiles = [translate (fromIntegral (2*x -9)*30) (fromIntegral (9-2*y)*30) $ color (greyN 0.6) $ rectangleSolid 60 60 | x <- [1..8], y <- [1..8], (x-1) `mod` 2 == (y-1) `mod` 2]
+
 
 renderPieces :: Board -> Picture
-renderPieces b = error "TODO"
+renderPieces b = pictures [(pictures pieces), (pictures kings)]
+    where
+        pieces = [translate (fromIntegral (2*x-9)*30) (fromIntegral (9-2*y)*30) $ color pc $ circleSolid 25 | x <- [1..8], y <- [1..8], pc <- [black,red], t<-[b!!(x-1,y-1)], t == R && pc == red || t == B && pc == black]
+        -- pretty sure no background
+        kings = [translate (fromIntegral (2*x-9)*30) (fromIntegral (9-2*y)*30) $ color white $ Text kstr | x <- [1..8], y <-[1..8], t<-[b!!(x-1,y-1)], kstr <- ["BK","RK"], t == BK && kstr == "BK" || t == RK && kstr == "RK"]
+ 
 
 --These are already defined
 -- circle takes radius

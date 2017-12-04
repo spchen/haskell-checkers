@@ -10,3 +10,4 @@ We will implement the checkers game to accept input from a human. The human play
 
 
 Backend for checkers modified from: https://github.com/nikivazou/tic-tac-toe/
+frontend gui modified from: https://github.com/prateekkumarweb/haskell-go-checkers
