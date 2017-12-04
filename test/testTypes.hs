@@ -32,6 +32,12 @@ main =
             do
                 putStrLn "[FAIL] isSimpleMove"
                 exitFailure 
+        if removeWhichTest then
+            putStrLn "[PASS] removeWhichTest"
+         else
+            do
+                putStrLn "[FAIL] removeWhichTest"
+                exitFailure
         exitSuccess
    
 
@@ -55,3 +61,9 @@ isSimpleMoveTest =
     && (not $ isSimpleMove R ((0,0),(1,1)))
     && (not $ isSimpleMove B ((1,1),(0,0)))
     && (isSimpleMove R ((1,1),(0,0)))
+
+removeWhichTest :: Bool
+removeWhichTest = 
+    (removeWhich ((0,0),(2,2)) == (1,1))
+    && (removeWhich ((4,4),(2,2)) == (3,3))
+    && (removeWhich ((2,3),(4,5)) == (3,4))
