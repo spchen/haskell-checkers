@@ -47,7 +47,7 @@ emptyBoard = [[whatSquare x y | y <-[1..8]] | x <- [1..8]]
 startingBoard :: Board
 startingBoard = [[initalSquare x y | y <-[1..8]] | x <- [1..8]]
 
--- to test winning scenarios
+-- to test winning scenarios (only puts two pieces on board)
 testSquare x y =  if (x `mod` 2 == y `mod` 2) then
                     if x==4 && y==4 then B
                     else if x==5 && y==5 then R

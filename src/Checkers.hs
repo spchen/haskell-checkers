@@ -4,11 +4,37 @@ import Types
 import Checks 
 import Misc 
 
+import Graphics.Gloss
+
 import Players.Human    (playerHuman   )
 
 player1, player2 :: Player
 player1 = playerHuman "Player1"
 player2 = playerHuman "Player2"
+
+--GLOSS STUFF---------------------------
+window :: Display
+window = InWindow "NCheckers" (600, 600) (10, 10)
+
+renderBoard :: Board -> Picture
+renderBoard b = pictures [boardbg, (pictures playTiles)]
+  where
+    boardbg = color (dark white) $ rectangleSolid 480 480
+    playTiles = [translate (fromIntegral (2*x -9)*30) (fromIntegral (9-2*y)*30) $ color black $ rectangleSolid 60 60 | x <- [1..8], y <- [1..8], (x-1) `mod` 2 == (y-1) `mod` 2]
+
+renderPieces :: Board -> Picture
+renderPieces b = error "TODO"
+
+--These are already defined
+-- circle takes radius
+--circleSolid :: Float -> Picture 
+
+--rectangleSolid :: Float -> Float -> Picture
+
+-- overlays all the Pictures into one Picture
+--pictures :: [Picture] -> Picture
+
+--END GLOSS STUFF-----------------------
 
 main :: IO ()
 main = do
@@ -30,19 +56,23 @@ playRound p1 p2 score i = do
    putStrLn ("Score:: " ++ showScore score)
    putStrLn ("Round " ++ show i ++ "!")
    putStrLn ((if (i `mod` 2 == 0) then show p2 else show p1)  ++ " plays first")
-   putStrLn (showBoard testBoard)
-   result <- if (i `mod` 2 == 0) then play p2 p1 testBoard else play p1 p2 testBoard
+   putStrLn (showBoard startingBoard)
+   result <- if (i `mod` 2 == 0) then mplay p2 p1 startingBoard else mplay p1 p2 startingBoard
    case result of 
       Just p  -> putStrLn (show p ++ " wins!\n\n") >> return (incr p score)
       Nothing -> putStrLn "Its a draw!\n\n" >> return score 
 
 
-play :: PlayerInfo -> PlayerInfo -> Board -> IO (Maybe Winner)
-play pi1@(PI p1 t1 _) pi2 board = do 
+mplay :: PlayerInfo -> PlayerInfo -> Board -> IO (Maybe Winner)
+mplay pi1@(PI p1 t1 _) pi2 board = do
+  --GLOSS STUFF----------------------------
+  --display window white (pictures [renderBoard board, renderPieces board])
+  display window white (renderBoard board)
+  --END GLOSS STUFF--------------------------
   move <- (playerMove p1) t1 board
   case putMaybe board t1 move of
     Nothing -> putStrLn "Invalid move." >> return (Just pi2)
     Just b  -> do putStrLn $ showBoard b
                   if tileWins b t1
                     then return (Just pi1) 
-                    else play pi2 pi1 b 
+                    else mplay pi2 pi1 b 
