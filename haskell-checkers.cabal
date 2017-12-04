@@ -29,3 +29,9 @@ Test-Suite test-checks
     main-is:    testChecks.hs
     hs-source-dirs: test, src
     build-depends: base
+
+Test-Suite test-types
+    type:       exitcode-stdio-1.0
+    main-is:    testTypes.hs
+    hs-source-dirs: test, src
+    build-depends: base
