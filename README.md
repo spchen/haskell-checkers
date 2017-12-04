@@ -8,6 +8,12 @@ Spencer Chen
 
 We will implement the checkers game to accept input from a human. The human player can play against a basic AI. The checkers game will have a gui built with one of Haskell's gui libraries, and the standard checkers rules will be enforced. Multiple rounds will be supported.
 
+Uses Circle CI for pipeline testing and cabal to build
 
-Backend for checkers modified from: https://github.com/nikivazou/tic-tac-toe/
+To Build
+
+cabal configure
+
+cabal build or cabal install
+
 frontend gui modified from: https://github.com/prateekkumarweb/haskell-go-checkers
