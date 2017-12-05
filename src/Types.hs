@@ -105,10 +105,10 @@ putMaybe b t (((ox,oy),(nx,ny)):ml) =
                   else
                     Just $ makeSimpleMove b m R
         else
-          case t of
-            B -> Nothing
-            R -> Nothing
-            k -> Just $ makeSimpleMove b m k
+          if isValidKingMove t m then
+            Just $ makeSimpleMove b m t
+          else
+            Nothing
       else
         -- tests for a valid jump
         if validList b (m:ml) t then
@@ -137,6 +137,12 @@ isSimpleMove t ((ox,oy),(nx,ny)) =
     B -> (abs (nx - ox) == 1) && (ny - oy == 1)
     R -> (abs (nx - ox) == 1) && (ny - oy == -1)
     _ -> False
+
+isValidKingMove t ((ox,oy),(nx,ny)) =
+  case t of
+    BK -> (abs (nx - ox) == 1) && (abs (ny - oy) == 1)
+    RK -> (abs (nx - ox) == 1) && (abs (ny - oy) == 1)
+    _  -> False
 
 -------------------------------------------------------------------------------
 --- Player --------------------------------------------------------------------

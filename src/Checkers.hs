@@ -25,11 +25,15 @@ window :: Display
 window = InWindow "NCheckers" (600, 600) (10, 10)
 
 renderBoard :: Board -> Picture
-renderBoard b = pictures [boardbg, (pictures playTiles), (renderPieces b)]
+renderBoard b
+  | (tileWins b R && tileWins b RK) || (tileWins b B && tileWins b BK)
+    = pictures [boardbg, (pictures playTiles), (renderPieces b), gameOver]
+  | otherwise
+    = pictures [boardbg, (pictures playTiles), (renderPieces b)]
   where
     boardbg = color (dark white) $ rectangleSolid 480 480
     playTiles = [translate (fromIntegral (2*x -9)*30) (fromIntegral (9-2*y)*30) $ color (greyN 0.6) $ rectangleSolid 60 60 | x <- [1..8], y <- [1..8], (x-1) `mod` 2 == (y-1) `mod` 2]
-
+    gameOver = translate (-100) 250 $ scale 0.3 0.3 $ Text "Game Over"
 
 renderPieces :: Board -> Picture
 renderPieces b = pictures [(pictures pieces), (pictures kings)]
@@ -49,7 +53,7 @@ handleEvent (EventKey (MouseButton LeftButton) Down _ (x, y)) state@(b,(_,_),t)
       x' = (round $ (x+270)/60) - 1 
       y' = (round $ (270-y)/60) - 1
 handleEvent (EventKey (MouseButton LeftButton) Up _ (x, y)) state@(b,(ox,oy),t)
-    | isJump m && length (validJumps nx ny b t) > 0 && pieceToMove `elem` fullTileSet
+    | isJump m && trace (show (length (validJumps nx ny b pieceToMove))) (length (validJumps nx ny b pieceToMove)) > 0 && pieceToMove `elem` fullTileSet
       = case (putMaybe b pieceToMove [m]) of
           Just nb -> (nb,(nx,ny),t)
           Nothing -> state
